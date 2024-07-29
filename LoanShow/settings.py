@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-ydg08x7kt^xlfimu9ism%%p161t1%#!!p^%u8kkf^74itmxch^"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'loans',
     'rest_framework',
     'django_crontab',
+    'django_celery_results',
+
 ]
 
 MIDDLEWARE = [
@@ -71,6 +73,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "LoanShow.wsgi.application"
+
+ACCOUNT_SID='AC8d49f9fb432a56e290c12b02ab9e2e7d'
+AUTH_TOKEN='41e775a91bba585e4ba0c3332753857a'
+COUNTRY_CODE='+91'
+TWILIO_WHATSAPP_NUMBER='whatsapp:+14155238886'
+TWILIO_PHONE_NUMBER='+12513224258'
 
 
 # Database
@@ -132,8 +140,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
+import os
 
-STATIC_URL = "static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -147,6 +161,34 @@ REST_FRAMEWORK = {
 }
 
 CRONJOBS = [
-    ('0 1 * * *', 'django.core.management.call_command', ['scrape_loans']),
+    ('1 0 * * *', 'django.core.management.call_command', ['scrape_loans']),
     ('30 1 * * *', 'django.core.management.call_command', ['scrape_homeloans']),
 ]
+
+# Use database-backed sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Session cookie settings
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_AGE = 1209600  # 2 weeks, in seconds
+SESSION_COOKIE_SECURE = True  # Use HTTPS for session cookie
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = False
+
+
+#celery 
+CELERY_BROKER_URL= "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = 'djnago-db'
+CELERY_TIMEZONE = "Asia/Kolkata"
+CELERY_RESULT_BACKEND = 'django-db'
+
+# enable extended task result show name or task or workers
+CELERY_RESULT_EXTENDED =True 
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT=587
+EMAIL_HOST_USER="harshitagarwal.ee23@jecrc.ac.in"
+EMAIL_HOST_PASSWORD="harshit@123"
